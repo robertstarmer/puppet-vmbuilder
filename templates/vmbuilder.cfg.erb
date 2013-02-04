@@ -1,0 +1,33 @@
+[DEFAULT]
+# Default is 1G tmpfs; Uncomment this line if you've >=2G of free RAM.
+tmpfs = suid,dev,size=2G
+ 
+arch = amd64
+#arch = i386
+domain = forty.lab
+part = vmbuilder.partition
+user = localadmin
+name = localadmin
+pass = ubuntu
+ 
+[kvm]
+libvirt = qemu:///system
+#network = br0
+bridge = br0
+virtio_net = true
+
+[ubuntu]
+# If you are in the SDU DMZ, you can use my ubuntu mirror:
+# mirror = http://192.168.90.10/ubuntu
+# If using package cache software (apt-proxy), uncomment line below and set correct IP and Port:
+# install-mirror = http://127.0.0.1:9999/ubuntu
+# OR better 'apt-get install apt-cacher-ng' and then: 
+# install-mirror = http://127.0.0.1:3142/ubuntu
+
+suite = precise
+flavour = virtual
+#components = main,universe,restricted,multiverse
+components = main,universe
+# Example adding PPA and installing extra software packages after base OS installation:
+#ppa = bcfg2/lucidtesting 
+addpkg = openssh-server, unattended-upgrades, acpid, ntp, puppet, ipmitool, git, python-passlib, python-yaml, python-jinja2
