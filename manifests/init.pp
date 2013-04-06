@@ -40,7 +40,7 @@ class vmbuild (
   exec { "vmbuild-kvm-$hostname":
    path => ["/usr/bin","/bin","/sbin"],
    timeout => '1200',
-   command => "vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $net --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip --firstboot=/etc/vmbuilder.boot.sh",
+   command => "vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
    unless => "test -d /vms/$hostname",
   }
 }
