@@ -4,7 +4,7 @@ tmpfs = suid,dev,size=2G
  
 arch = amd64
 #arch = i386
-domain = forty.lab
+domain = <%= domain %>
 part = vmbuilder.partition
 user = localadmin
 name = localadmin
@@ -13,8 +13,9 @@ pass = ubuntu
 [kvm]
 libvirt = qemu:///system
 #network = br0
-bridge = br-ex
+bridge = <%= bridge %>
 virtio_net = true
+mem = <%= memory %>
 
 [ubuntu]
 # If you are in the SDU DMZ, you can use my ubuntu mirror:
@@ -23,8 +24,11 @@ virtio_net = true
 # install-mirror = http://127.0.0.1:9999/ubuntu
 # OR better 'apt-get install apt-cacher-ng' and then: 
 # install-mirror = http://127.0.0.1:3142/ubuntu
+<% if mirror %>
+mirror=<%= mirror %>
+<% end %>
 
-suite = precise
+suite = <% distribution %>
 flavour = virtual
 #components = main,universe,restricted,multiverse
 components = main,universe

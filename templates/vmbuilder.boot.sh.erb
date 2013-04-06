@@ -7,7 +7,7 @@ rm /etc/ssh/ssh_host*key*
 dpkg-reconfigure -fnoninteractive -pcritical openssh-server
 puppet agent --test --waitforcert 0 || true
 sed -e '/logdir/ a pluginsync=true' -i /etc/puppet/puppet.conf 
-sed -e "/logdir/ a server=build-40.forty.lab" -i /etc/puppet/puppet.conf
+sed -e "/logdir/ a server=<%= puppetmaster %>" -i /etc/puppet/puppet.conf
 sed -e 's/START=no/START=yes/' -i /etc/default/puppet 
-echo -e "server build-40.forty.lab iburst" > /etc/ntp.conf 
+echo -e "server <%= puppetmaster %> iburst" > /etc/ntp.conf 
 echo '8021q' >> /etc/modules
