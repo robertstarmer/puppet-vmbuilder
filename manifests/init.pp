@@ -21,17 +21,17 @@ class vmbuilder (
 
   file { "/etc/vmbuilder.cfg":
    ensure => 'present',
-   content => template("vmbuild/vmbuilder.cfg.erb"),
+   content => template("vmbuilder/vmbuilder.cfg.erb"),
   }
 
   file { "/etc/vmbuilder.part":
    ensure => 'present',
-   content => template("vmbuild/vmbuilder.part.erb"),
+   content => template("vmbuilder/vmbuilder.part.erb"),
   }
 
   file { "/etc/vmbuilder.boot.sh":
    ensure => 'present',
-   content => template("vmbuild/vmbuilder.boot.sh.erb"),
+   content => template("vmbuilder/vmbuilder.boot.sh.erb"),
   } 
 
   file { "/vms":
