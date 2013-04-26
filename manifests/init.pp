@@ -44,10 +44,10 @@ class vmbuilder (
    command => "vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
    unless => "test -d /vms/$hostname",
   }
-  file { "/root/.vnc/':
+  file { '/root/.vnc/':
     ensure => 'directory',
   } ->
-  file { "/root/.vnc/xstartup':
+  file { '/root/.vnc/xstartup':
     ensure => present,
     content => "#!/bin/sh
 
