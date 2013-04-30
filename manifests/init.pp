@@ -1,5 +1,6 @@
 class vmbuilder (
  $distribution = 'precise',
+ $firstboot = undef,
  $mirror = undef,
  $network = '192.168.1.0',
  $netmask = '255.255.255.0',
@@ -9,7 +10,7 @@ class vmbuilder (
  $hostname = 'build-server',
  $domain = 'example.com',
  $disk = '8192',
- $ram = '4096',
+ $memory = '4096',
  $bridge = 'br-ex',
  $puppetmaster ='build-server.example.com',
 ) {
@@ -36,13 +37,23 @@ class vmbuilder (
 
   file { "/vms":
     ensure => 'directory',
-  } ->
-  exec { "vmbuild-kvm-$hostname":
-   path => ["/usr/bin","/bin","/sbin"],
-   timeout => '1200',
-   #command => "vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
-   command => "vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
-   unless => "test -d /vms/$hostname",
+  } 
+  if $firstboot {
+   exec { "vmbuild-kvm-$hostname":
+    path => ["/usr/bin","/bin","/sbin"],
+    timeout => '1200',
+    command => "vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
+    unless => "test -d /vms/$hostname",
+    require => File["/vms"],
+   }
+  } else {
+   exec { "vmbuild-kvm-$hostname":
+    path => ["/usr/bin","/bin","/sbin"],
+    timeout => '1200',
+    command => "vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
+    unless => "test -d /vms/$hostname",
+    require => File["/vms"],
+   }
   }
   file { '/root/.vnc/':
     ensure => 'directory',
