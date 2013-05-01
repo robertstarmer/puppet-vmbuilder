@@ -20,6 +20,10 @@ class vmbuilder (
 #   notify => Exec["vmbuild-kvm-ubuntu"],
   }
 
+  file { "/etc/modprobe.d/kvm-intel.conf":
+   ensure => 'present',
+   content => 'options kvm-intel nested=1',
+  }
   file { "/etc/vmbuilder.cfg":
    ensure => 'present',
    content => template("vmbuilder/vmbuilder.cfg.erb"),
@@ -50,7 +54,7 @@ class vmbuilder (
    exec { "vmbuild-kvm-$hostname":
     path => ["/usr/bin","/bin","/sbin"],
     timeout => '1200',
-    command => "vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
+    command => "python vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
     unless => "test -d /vms/$hostname",
     require => File["/vms"],
    }
