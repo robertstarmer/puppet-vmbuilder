@@ -64,6 +64,7 @@ class vmbuilder (
   } ->
   file { '/root/.vnc/xstartup':
     ensure => present,
+    mode => 0644,
     content => "#!/bin/sh
 
 unset SESSION_MANAGER
