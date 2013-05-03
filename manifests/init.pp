@@ -21,13 +21,6 @@ class vmbuilder (
 #   notify => Exec["vmbuild-kvm-ubuntu"],
   }
 
-  exec { 'Add pty to vm':
-    path => ["/usr/bin","/bin","/sbin"],
-    command => "sed '/#end for/a <serial type=\'pty\'><target port=\'0\'\/><\/serial>' /etc/vmbuilder/libvirt/libvirtxml.tmpl",
-    unless => "grep serial /etc/vmbuilder/libvirt/libvirtxml.tmpl",
-    require => Package["virt-manager"],
-  }
-
   file { "/etc/modprobe.d/kvm-intel.conf":
    ensure => 'present',
    content => 'options kvm-intel nested=1',
@@ -47,6 +40,12 @@ class vmbuilder (
    content => template("vmbuilder/vmbuilder.boot.sh.erb"),
   } 
 
+  file { "/etc/vmbuilder/libvirt/libvirtxml.tmpl":
+    ensure => 'present'
+    content => template("vmbuilder/libvirtxml.tmpl.erb"),
+    require => Package["virt-manager"],
+  }
+
   file { "$disk_path":
     ensure => 'directory',
   } 
@@ -58,7 +57,7 @@ class vmbuilder (
     command => "sudo vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
     unless => "test -d $disk_path/$hostname",
     require => File["$disk_path"],
-    logoutput => 'true',
+    #logoutput => 'true',
    }
   } else {
    exec { "vmbuild-kvm-$hostname":
@@ -67,7 +66,7 @@ class vmbuilder (
     command => "sudo vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
     unless => "test -d $disk_path/$hostname",
     require => File["$disk_path"],
-    logoutput => 'true',
+    #logoutput => 'true',
    }
   }
   file { '/root/.vnc/':
