@@ -13,11 +13,19 @@ class vmbuilder (
  $memory = '4096',
  $bridge = 'br-ex',
  $puppetmaster ='build-server.example.com',
+ $disk_path = '/vms',
 ) {
 
   package { ['python-vm-builder','virt-manager','virt-viewer','gnome-core','vnc4server']:
    ensure => 'latest',
 #   notify => Exec["vmbuild-kvm-ubuntu"],
+  }
+
+  exec { 'Add pty to vm':
+    path => ["/usr/bin","/bin","/sbin"],
+    command => "sed '/#end for/a <serial type=\'pty\'><target port=\'0\'\/><\/serial>' /etc/vmbuilder/libvirt/libvirtxml.tmpl",
+    unless => "grep serial /etc/vmbuilder/libvirt/libvirtxml.tmpl",
+    require => Package["virt-manager"],
   }
 
   file { "/etc/modprobe.d/kvm-intel.conf":
@@ -39,24 +47,27 @@ class vmbuilder (
    content => template("vmbuilder/vmbuilder.boot.sh.erb"),
   } 
 
-  file { "/vms":
+  file { "$disk_path":
     ensure => 'directory',
   } 
+
   if $firstboot {
    exec { "vmbuild-kvm-$hostname":
     path => ["/usr/bin","/bin","/sbin"],
     timeout => '1200',
-    command => "vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
-    unless => "test -d /vms/$hostname",
-    require => File["/vms"],
+    command => "sudo vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
+    unless => "test -d $disk_path/$hostname",
+    require => File["$disk_path"],
+    logoutput => 'true',
    }
   } else {
    exec { "vmbuild-kvm-$hostname":
     path => ["/usr/bin","/bin","/sbin"],
     timeout => '1200',
-    command => "python vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=/vms/$hostname --ip $ip",
-    unless => "test -d /vms/$hostname",
-    require => File["/vms"],
+    command => "sudo vmbuilder kvm ubuntu  --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
+    unless => "test -d $disk_path/$hostname",
+    require => File["$disk_path"],
+    logoutput => 'true',
    }
   }
   file { '/root/.vnc/':

@@ -29,9 +29,9 @@ mirror=<%= mirror %>
 <% end %>
 
 suite = <%= distribution %>
-flavour = virtual
+flavour = server
 #components = main,universe,restricted,multiverse
 components = main,universe
 # Example adding PPA and installing extra software packages after base OS installation:
 #ppa = bcfg2/lucidtesting 
-addpkg = openssh-server, unattended-upgrades, acpid, ntp, puppet, ipmitool, git, python-passlib, python-yaml, python-jinja2
+addpkg = openssh-server, acpid, ntp, puppet, ipmitool, git, python-passlib, python-yaml, python-jinja2, vim, telnet, tcpdump, tmux, lvm2, iptables, iputils-tracepath, bash-completion, aptitude, ufw, dbus, curl, command-not-found, command-not-found-data
