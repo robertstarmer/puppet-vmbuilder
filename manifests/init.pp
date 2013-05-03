@@ -41,7 +41,7 @@ class vmbuilder (
   } 
 
   file { "/etc/vmbuilder/libvirt/libvirtxml.tmpl":
-    ensure => 'present'
+    ensure => 'present',
     content => template("vmbuilder/libvirtxml.tmpl.erb"),
     require => Package["virt-manager"],
   }
