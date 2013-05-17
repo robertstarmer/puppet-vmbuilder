@@ -18,7 +18,6 @@ class vmbuilder (
 
   package { ['python-vm-builder','virt-manager','virt-viewer','gnome-core','vnc4server']:
    ensure => 'latest',
-#   notify => Exec["vmbuild-kvm-ubuntu"],
   }
 
   file { "/etc/modprobe.d/kvm-intel.conf":
@@ -56,7 +55,7 @@ class vmbuilder (
     timeout => '1200',
     command => "sudo vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
     unless => "test -d $disk_path/$hostname",
-    require => File["$disk_path"],
+    require => File["$disk_path","/etc/vmbuilder/libvirt/libvirtxml.tmpl"],
     #logoutput => 'true',
    }
   } else {
