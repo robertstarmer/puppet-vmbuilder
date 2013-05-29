@@ -7,13 +7,14 @@ rm /etc/ssh/ssh_host*key*
 dpkg-reconfigure -fnoninteractive -pcritical openssh-server
 echo '# include /etc/sudoers.d' >> /etc/sudoers
 
+sed -e "s/127.0.1.1.*/`facter ipaddress`\t`facter fqdn`\t`facter hostname`/" -i /etc/hosts
 sed -e '/logdir/ a pluginsync=true' -i /etc/puppet/puppet.conf 
 sed -e "/logdir/ a server=<%= puppetmaster %>" -i /etc/puppet/puppet.conf
 sed -e 's/START=no/START=yes/' -i /etc/default/puppet 
-puppet agent --test --waitforcert 0 || true
 echo -e "server <%= puppetmaster %> iburst" > /etc/ntp.conf 
 echo '8021q' >> /etc/modules
 echo 'kvm' >> /etc/modules
+puppet agent --test --waitforcert 0 || true
 
 mkdir /root/.ssh
 cat >> /root/.ssh/authorized_keys <<EOF

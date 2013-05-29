@@ -2,6 +2,10 @@
   <name>$hostname</name>
   <memory>#echo int($mem) * 1024 #</memory>
   <vcpu>$cpus</vcpu>
+  <cpu match='exact'>
+    <model>Westmere</model>
+   <feature policy='require' name='vmx'/>
+  </cpu>
   <os>
     <type>hvm</type>
     <boot dev='hd'/>
