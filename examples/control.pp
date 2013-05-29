@@ -9,6 +9,6 @@ class {"vmbuilder":
 	hostname=>"control-server",
 	domain=>"lab",
 	disk=>"32768",
-	ram=>"4096",
+	memory=>"4096",
 	bridge=>"br-ex",
 	puppetmaster=>"build-server.lab" }
