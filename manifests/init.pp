@@ -1,6 +1,6 @@
 class vmbuilder (
  $distribution = 'precise',
- $firstboot = undef,
+ $firstboot = undef, # vmbuilder.boot.sh
  $mirror = undef,
  $network = '192.168.1.0',
  $netmask = '255.255.255.0',
@@ -10,7 +10,7 @@ class vmbuilder (
  $hostname = 'build-server',
  $domain = 'example.com',
  $disk = '8192',
- $memory = '4096',
+ $ram = '4096',
  $bridge = 'br-ex',
  $puppetmaster ='build-server.example.com',
  $disk_path = '/vms',
@@ -39,6 +39,11 @@ class vmbuilder (
    content => template("vmbuilder/vmbuilder.boot.sh.erb"),
   } 
 
+  file { "/etc/build.boot.sh":
+    ensure => 'present',
+    content => template("vmbuilder/build.boot.sh.erb"),
+  }
+
   file { "/etc/vmbuilder/libvirt/libvirtxml.tmpl":
     ensure => 'present',
     content => template("vmbuilder/libvirtxml.tmpl.erb"),
@@ -53,7 +58,7 @@ class vmbuilder (
    exec { "vmbuild-kvm-$hostname":
     path => ["/usr/bin","/bin","/sbin"],
     timeout => '1200',
-    command => "sudo vmbuilder kvm ubuntu --firstboot=/etc/vmbuilder.boot.sh --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
+    command => "sudo vmbuilder kvm ubuntu --firstboot=/etc/$firstboot --mask $netmask --net $network --gw $gateway --dns $dns --hostname=$hostname --destdir=$disk_path/$hostname --ip $ip >> /tmp/build.out",
     unless => "test -d $disk_path/$hostname",
     require => File["$disk_path","/etc/vmbuilder/libvirt/libvirtxml.tmpl"],
     #logoutput => 'true',
