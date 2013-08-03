@@ -1,21 +1,29 @@
+### MANAGED BY PUPPET ###
 [DEFAULT]
 # Default is 1G tmpfs; Uncomment this line if you've >=2G of free RAM.
 tmpfs = suid,dev,size=2G
  
-arch = amd64
-#arch = i386
-domain = <%= domain %>
-part = vmbuilder.partition
-user = localadmin
-name = localadmin
-pass = ubuntu
- 
+<% if defined? @arch -%>
+arch = <%= @arch %>
+<% end -%>
+
+<% if defined? @user -%>
+user = <%= @user %>
+<% end -%>
+<% if defined? @pass -%>
+pass = <%= @pass %>
+<% end -%>
+
 [kvm]
 libvirt = qemu:///system
 #network = br0
-bridge = <%= bridge %>
-virtio_net = true
-mem = <%= memory %>
+<% if defined? @bridge -%>
+bridge = <%= @bridge %>
+<% end -%>
+<% if defined? @virtio_net -%>
+virtio_net = <%= @virtio_net %>
+<% end -%>
+mem = <%= @memory %>
 
 [ubuntu]
 # If you are in the SDU DMZ, you can use my ubuntu mirror:
@@ -24,14 +32,13 @@ mem = <%= memory %>
 # install-mirror = http://127.0.0.1:9999/ubuntu
 # OR better 'apt-get install apt-cacher-ng' and then: 
 # install-mirror = http://127.0.0.1:3142/ubuntu
-<% if mirror %>
-mirror=<%= mirror %>
-<% end %>
+<% if defined? @mirror -%>
+mirror=<%= @mirror %>
+<% end -%>
 
-suite = <%= distribution %>
+suite = <%= @distribution %>
 flavour = server
-#components = main,universe,restricted,multiverse
-components = main,universe
+components = <%= @components.join"," %>
 # Example adding PPA and installing extra software packages after base OS installation:
 #ppa = bcfg2/lucidtesting 
-addpkg = openssh-server, acpid, ntp, puppet, ipmitool, git, python-passlib, python-yaml, python-jinja2, vim, telnet, tcpdump, tmux, lvm2, iptables, iputils-tracepath, bash-completion, aptitude, ufw, dbus, curl, command-not-found, command-not-found-data
+addpkg = <%= scope.lookupvar('pkg_full').join", " %>

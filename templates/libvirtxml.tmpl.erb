@@ -43,7 +43,7 @@
       <driver name='qemu' type='$disk.format_type' />
 #end if
       <source file='$disk.filename' />
-      <target dev='hd$disk.devletters()' />
+      <target dev='vd$disk.devletters()' bus='virtio' />
     </disk>
 #end for
     <serial type='pty'>
