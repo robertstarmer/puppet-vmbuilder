@@ -1,27 +1,43 @@
 #!/bin/bash
+### MANAGED BY PUPPET ###
 # This script will run the first time the virtual machine boots
 # It is ran as root.
  
 # Regenerate ssh keys
 rm /etc/ssh/ssh_host*key*
 dpkg-reconfigure -fnoninteractive -pcritical openssh-server
+<% if @sudo -%>
 echo '# include /etc/sudoers.d' >> /etc/sudoers
+<% end -%>
+
+<% if @operatingsystem == 'Ubuntu' -%>
+apt-add-repository "http://apt.puppetlabs.com/ main dependencies"
+gpg --keyserver-options http-proxy --keyserver keyserver.ubuntu.com --recv-key 1054B7A24BD6EC30
+gpg --export | apt-key add -
+apt-get update
+apt-get -y install puppet
+<% end -%>
 
 sed -e "s/127.0.1.1.*/`facter ipaddress`\t`facter fqdn`\t`facter hostname`/" -i /etc/hosts
 sed -e '/logdir/ a pluginsync=true' -i /etc/puppet/puppet.conf 
-sed -e "/logdir/ a server=<%= puppetmaster %>" -i /etc/puppet/puppet.conf
+sed -e "/logdir/ a server=<%= @puppetmaster %>" -i /etc/puppet/puppet.conf
 sed -e 's/START=no/START=yes/' -i /etc/default/puppet 
-echo -e "server <%= puppetmaster %> iburst" > /etc/ntp.conf 
+<% if @ntpsync -%>
+echo -e "server <%= @puppetmaster %> iburst" > /etc/ntp.conf 
+<% end -%>
 echo '8021q' >> /etc/modules
 echo 'kvm' >> /etc/modules
 puppet agent --test --waitforcert 0 || true
 
+<% if @ssh_rsa_key -%>
 mkdir /root/.ssh
 cat >> /root/.ssh/authorized_keys <<EOF
-ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCeS9zlMeXeivRadLQPLkKevr4wgwckKWr7/M2duvAwNNUmksQTwdfgyA9olciY4LAtn1CRFt4eU7gXOkbP9c0iUTvn/R7Rsva29W/NyXAKIF56PEEZ77FHlXyifuOgRiaRHZMz7sbMFsiXhgwwOl/fsA8pCGOo7VZ5Y088Bwcec0xpm8doxgTZoHtBGcskYX3OiAcYr/dJqzvJmtPwTUtjpWlk9pTSrnedxgKh9XKndKEE3ewjsTAmtpAkdw5gdaUCmJMM4U+o86QIxTNy67ITjoFnsNlspxDiTlrPGn8D6Xt4VLWvus8WbeR5Rv9vz+WPHJT0nMnrsG0hnVCDLe2p root@control01
+ssh-rsa <%= @ssh_rsa_key %>
 EOF
 chmod 600 /root/.ssh/authorized_keys
+<% end -%>
 
+<% if @tty -%>
 cat > /etc/init/ttyS0.conf <<EOF
 # ttyS0 - getty
 #
@@ -34,3 +50,4 @@ stop on runlevel [!2345]
 respawn
 exec /sbin/getty -L 38400 ttyS0 vt102
 EOF
+<% end -%>
