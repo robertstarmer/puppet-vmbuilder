@@ -12,7 +12,7 @@ class vmbuilder (
   $domain       = 'example.com',
   $disk         = '8192',
   $cpus         = '2',
-  $memory       = '4096',
+  $ram          = '4096',
   $bridge       = 'br-ex',
   $puppetmaster = 'build-server.example.com',
   $disk_path    = '/vms',
@@ -91,9 +91,9 @@ class vmbuilder (
     $part_option = ''
   }
 
-  file { '/etc/vmbuilder.boot.sh':
+  file { '/etc/build.boot.sh':
     ensure  => 'present',
-    content => template('vmbuilder/vmbuilder.boot.sh.erb'),
+    content => template('vmbuilder/build.boot.sh.erb'),
   }
 
   file { '/etc/vmbuilder/libvirt/libvirtxml.tmpl':
@@ -113,7 +113,7 @@ class vmbuilder (
   }
 
   if $firstboot {
-    $firstboot_option = '--firstboot=/etc/vmbuilder.boot.sh'
+    $firstboot_option = '--firstboot=/etc/build.boot.sh'
   } else {
     $firstboot_option = ''
   }
